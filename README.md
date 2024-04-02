@@ -1,4 +1,4 @@
-# PEACHES: Profiling Expression Analysis of Cellular Heterogeneity for Evaluating Stem Cell Differentiation
+# PEACHES: Profiling Expression Analysis of Cellular Heterogeneity for Evaluating Stem Cell Differentiation (We can change this title, PEACHES is nice as an acronym for repo + environment title) 
 
 This repo contains code for the PEACHES project (Team Members: Jessica Shah, Alana Mermin-Bunnell, Tess Fallon). 
 
