@@ -128,13 +128,13 @@ class diffScore:
         hits = 0
         misses = 0
         for gene in hits_e:
-            hits += gene['log2FoldChange']*(1 + np.log10(gene['pvalue']))*self.weight_e
+            hits += gene['log2FoldChange']*(1-gene['Product'])*self.weight_e
         for gene in hits_n:
-            hits += gene['log2FoldChange']*(1 + np.log10(gene['pvalue']))*self.weight_n
+            hits += gene['log2FoldChange']*(1 - gene['Product'])*self.weight_n
         for gene in miss_e:
-            misses += gene['log2FoldChange']*(np.log10(gene['pvalue']))*self.weight_e
+            misses += gene['log2FoldChange']*(gene['Product'])*self.weight_e
         for gene in miss_n:
-            misses += gene['log2FoldChange']*(np.log10(gene['pvalue']))*self.weight_n
+            misses += gene['log2FoldChange']*(gene['Product'])*self.weight_n
         
         
         # store essential gene hits/misses as global variables 
@@ -179,7 +179,7 @@ class diffScore:
         
         
 if __name__ == '__main__':
-    # must run get_essentail_genes.py first 
+    # must run get_essential_genes.py first 
     essential = pd.read_table('../data/essential_CM.tsv')
     nonessential = pd.read_table('../data/unessential_CM.tsv')
     
