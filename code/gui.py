@@ -85,7 +85,8 @@ def create_meta_data(ipsc_cell_dir, primary_cell_dir):
     for i, sample in enumerate(ipsc_dataframes):
         subset = sample[['Gene Name', 'Expression Data']].copy()
         sample_name = sample.loc[0,'Characterization']
-        if(sample_name=='Primary' or sample_name=='primary'or sample_name=='uiPSC'):
+        
+        if(sample_name=='Primary' or sample_name=='primary' or sample_name=='uiPSC'):
             sample_name = 'p'+str(primary)
             primary+=1
         elif(sample_name=='ESC'):
@@ -135,8 +136,8 @@ def create_meta_data(ipsc_cell_dir, primary_cell_dir):
             sample_name = 'i'+str(ipsc)
             ipsc+=1
         else:
-            sample_name = 'i'+str(ipsc)
-            ipsc+=1
+            sample_name = 'p'+str(primary)
+            primary+=1
         subset.sort_values('Gene Name', inplace=True)
         subset = subset.rename(columns={'Expression Data': sample_name})
         modified_dfs.append(subset)
@@ -197,8 +198,8 @@ def differential_expression(ipsc_cell_dir, primary_cell_dir):
 
     metadata = metadata.set_index('Sample')
     metadata = metadata.dropna()
-     
-    dds = DeseqDataSet(counts=merged.iloc[0:10],
+    print(metadata)
+    dds = DeseqDataSet(counts=merged.iloc[0:20],
             metadata=metadata,
             design_factors="Condition")
     dds.deseq2()
@@ -215,7 +216,7 @@ def differential_expression(ipsc_cell_dir, primary_cell_dir):
     file_path = os.path.join(desktop_path, 'log_output.tsv')
 
     # Writing data to the TSV file
-    log_output.to_csv(file_path, sep='\t', index=False)
+    log_output.to_csv(file_path, sep='\t')
 
     print("TSV log_fold file saved successfully on desktop.")
 
