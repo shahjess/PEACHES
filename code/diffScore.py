@@ -93,8 +93,6 @@ class diffScore:
         
         return self.p
     
-    def __float_equals(float1, float2, tolerance=1e-9):
-        return abs(float1 - float2) < tolerance
     
     def __run_null(self):
         '''
@@ -112,21 +110,46 @@ class diffScore:
         
 if __name__ == '__main__':
     # must run get_essential_genes.py first 
-    #test = pd.read_table('../data/log_output_fibroblast.tsv',sep='\t')
-    test = pd.read_table('../data/log_output_cm.tsv',sep='\t')
-    #test = pd.read_table('../data/log_output_lung.tsv',sep='\t')
-    # needs to be the same format! 
-    test.rename(columns={'Gene Name': 'Gene'}, inplace=True)
+    import matplotlib.pyplot as plt
     
-   #  test = pd.read_table('../data/primary_goodDiff.tsv',sep='\t')
+    test_fib = pd.read_table('../data/log_output_fibroblast.tsv',sep='\t')
+    test_cm = pd.read_table('../data/log_output_cm.tsv',sep='\t')
+    test_lung = pd.read_table('../data/log_output_lung.tsv',sep='\t')
+    # needs to be the same format! 
+    test_fib.rename(columns={'Gene Name': 'Gene'}, inplace=True)
+    test_cm.rename(columns={'Gene Name': 'Gene'}, inplace=True)
+    test_lung.rename(columns={'Gene Name': 'Gene'}, inplace=True)
+    
     gene_list = pd.read_table('../data/essential_CM.tsv',sep='\t')
     gene_list = gene_list.iloc[:,1:]
     
     
-    s = diffScore(test,gene_list)
+    s_fib = diffScore(test_fib,gene_list)
+    score_fib = s_fib.score()
+    s_cm = diffScore(test_cm,gene_list)
+    score_cm = s_cm.score()
+    s_lung = diffScore(test_lung,gene_list)
+    score_lung = s_lung.score()
     
-    score = s.score()
-    print(score)
+    scores = [s_lung.score, s_fib.score, s_cm.score]
+    labs = ['Lung', 'Direct Conversion', 'iPSC Derived']
+    
+    # Plotting
+    plt.bar(labs, scores)
+    
+    # Adding labels
+    plt.xlabel('Cell Type')
+    plt.ylabel('Differentiation Scores')
+    plt.title('Differentiation Scores by Cell Type')
+
+    # Rotating x-axis labels for better readability
+    plt.xticks(rotation=45)
+    plt.ylim((0,1))
+    
+    plt.savefig('../Figures/score_barGraph.png')
+    
+    plt.show()
+
     
 
     
