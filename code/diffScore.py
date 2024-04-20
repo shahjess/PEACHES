@@ -39,13 +39,13 @@ class diffScore:
         '''
         self.test = test 
         self.gene_list= gene_list
-        self.genes_to_test = self.test[self.test['Gene'].isin(self.gene_list['Gene'])]
+        self.genes_to_test = self.test[self.test['Gene Name'].isin(self.gene_list['Gene Name'])]
    
         
     # gets score based on metric initialized during object initialization  
     def score(self):
         self.score = self.__score(self.test)
-        return {'Score': self.score, 'p':self.__get_p()}
+        return self.score
         
     
         
@@ -61,7 +61,7 @@ class diffScore:
         n = 0
         for i in range(0,len(self.gene_list)):
             gene = self.gene_list.iloc[i, 0]
-            gene_test = test[test['Gene']==gene]
+            gene_test = test[test['Gene Name']==gene]
             # in case gene is not in test case 
             #print(gene_test)
             if(len(gene_test)>0):
@@ -72,46 +72,80 @@ class diffScore:
         
         
     
-    def __get_p(self):
-        '''
-        Runs 1000 trials, permutes gene names across whole dataset. 
-        '''
-        vals = np.zeros(100)
-        
-        for i in range(0,100):
-            vals[i] = self.__run_null()
-    
-        # only get values higher than score 
-        more_extreme = [x for x in vals if x >= self.score] 
-        toRet = len(more_extreme)/len(vals)
-    
-        
-        if(abs(toRet - 0.0) < 1e-9): 
-            self.p = 0.01
-        else:
-            self.p = toRet 
-        
-        return self.p
-    
-    
-    def __run_null(self):
-        '''
-        Shuffles the gene names of the entire dataset, then runs the scoring algorithm on the shuffled data.
-        Returns the differentiation score of the randomly shuffled dataframe. 
-        '''
-        
-        copy = self.test.copy()
-        genes = sorted(self.test['Gene'], key=lambda k: random.random()) # shuffle 
-        copy['Gene'] = genes
-        
-        return self.__score(copy)
         
         
         
 if __name__ == '__main__':
     # must run get_essential_genes.py first 
     import matplotlib.pyplot as plt
+    import statistics as stats 
     
+    i1 = pd.read_table('../data/comparison_output/ipsc1/ipsc1_log_output.tsv',sep='\t') 
+    i2 = pd.read_table('../data/comparison_output/ipsc2/log_output.tsv',sep='\t') 
+    i3 = pd.read_table('../data/comparison_output/ipsc3/ipsc3_log_output.tsv',sep='\t') 
+    
+    p1 = pd.read_table('../data/comparison_output/primary1/primary1_log_output.tsv',sep='\t') 
+    p2 = pd.read_table('../data/comparison_output/primary2/primary2_log_output.tsv',sep='\t') 
+    p3 = pd.read_table('../data/comparison_output/primary3/primary3_log_output.tsv',sep='\t') 
+    
+    l1 = pd.read_table('../data/comparison_output/lung1/lung1_log_output.tsv',sep='\t') 
+    l2 = pd.read_table('../data/comparison_output/lung2/lung2_log_output.tsv',sep='\t') 
+    l3 = pd.read_table('../data/comparison_output/lung3/lung3_log_output.tsv',sep='\t') 
+    
+    gene_list = pd.read_table('../data/essential_CM.tsv',sep='\t')
+    gene_list = gene_list.iloc[:,1:]
+    
+    gene_list.rename(columns={'Gene': 'Gene Name'}, inplace=True)
+    
+    s_i1 = diffScore(i1, gene_list)
+    s_i2 = diffScore(i2, gene_list)
+    s_i3 = diffScore(i3, gene_list)
+    
+    s_p1 = diffScore(p1, gene_list)
+    s_p2 = diffScore(p2, gene_list)
+    s_p3 = diffScore(p3, gene_list)
+    
+    s_l1 = diffScore(l1, gene_list)
+    s_l2 = diffScore(l2, gene_list)
+    s_l3 = diffScore(l3, gene_list)
+    
+    ipscs = np.array([s_i1.score(), s_i2.score(),s_i3.score()])
+    ps = np.array([s_p1.score(), s_p2.score(),s_p3.score()])
+    ls = np.array([s_l1.score(), s_l2.score(),s_l3.score()])
+    
+    
+    # Create a figure and axis
+    fig, ax = plt.subplots()
+    
+    # Plot the data points as dots
+    ax.plot(np.ones_like(ls), ls, 'bo', label='Lung')
+    ax.plot(2 * np.ones_like(ps), ps, 'go', label='Primary Cultured')
+    ax.plot(3 * np.ones_like(ipscs), ipscs, 'ro', label='iPSC-Derived')
+    
+     # Add labels and title
+    ax.set_xlabel('Cell Type')
+    ax.set_ylabel('Differentiation Score')
+    ax.set_title('Differentiation Scores by Cell Type')
+    
+    # Set x-axis ticks
+    ax.set_xticks([1, 2, 3])
+    ax.set_xticklabels(['Lung', 'Primary Culture', 'iPSC-Derived'])
+    ax.set_ylim(0,1)
+    
+    # Show the plot
+    plt.show()
+    
+    plt.savefig('../Figures/score_comparisons.png')
+   
+    
+
+
+
+    
+    
+    
+    
+    ''' intial tests 
     test_fib = pd.read_table('../data/log_output_fibroblast.tsv',sep='\t')
     test_cm = pd.read_table('../data/log_output_cm.tsv',sep='\t')
     test_lung = pd.read_table('../data/log_output_lung.tsv',sep='\t')
@@ -149,6 +183,7 @@ if __name__ == '__main__':
     plt.savefig('../Figures/score_barGraph.png')
     
     plt.show()
+    ''' 
 
     
 
