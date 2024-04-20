@@ -78,7 +78,7 @@ class diffScore:
 if __name__ == '__main__':
     # must run get_essential_genes.py first 
     import matplotlib.pyplot as plt
-    import statistics as stats 
+    from scipy import stats 
     
     i1 = pd.read_table('../data/comparison_output/ipsc1/ipsc1_log_output.tsv',sep='\t') 
     i2 = pd.read_table('../data/comparison_output/ipsc2/log_output.tsv',sep='\t') 
@@ -135,7 +135,13 @@ if __name__ == '__main__':
     # Show the plot
     plt.show()
     
-    plt.savefig('../Figures/score_comparisons.png')
+   # plt.savefig('../Figures/score_comparisons.png')
+    
+    t_statistic, p1 = stats.ttest_ind(ls, ps)
+    t_statistic, p2 = stats.ttest_ind(ls, ipscs)
+    t_statistic, p3 = stats.ttest_ind(ps, ipscs)
+    print(p1, p2, p3)
+
    
     
 
