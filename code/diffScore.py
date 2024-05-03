@@ -80,6 +80,8 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from scipy import stats 
     
+    
+    
     i1 = pd.read_table('../data/comparison_output/ipsc1/ipsc1_log_output.tsv',sep='\t') 
     i2 = pd.read_table('../data/comparison_output/ipsc2/log_output.tsv',sep='\t') 
     i3 = pd.read_table('../data/comparison_output/ipsc3/ipsc3_log_output.tsv',sep='\t') 
@@ -91,6 +93,10 @@ if __name__ == '__main__':
     l1 = pd.read_table('../data/comparison_output/lung1/lung1_log_output.tsv',sep='\t') 
     l2 = pd.read_table('../data/comparison_output/lung2/lung2_log_output.tsv',sep='\t') 
     l3 = pd.read_table('../data/comparison_output/lung3/lung3_log_output.tsv',sep='\t') 
+    
+    d1 = pd.read_table('../data/comparison_output/fib_direct_1/log_output_fib_1.tsv',sep='\t')
+    d2 = pd.read_table('../data/comparison_output/fib_direct_2/log_output_fib2.tsv',sep='\t')
+    d3 = pd.read_table('../data/comparison_output/fib_direct_3/log_output_fib3.tsv',sep='\t')
     
     gene_list = pd.read_table('../data/essential_CM.tsv',sep='\t')
     gene_list = gene_list.iloc[:,1:]
@@ -109,9 +115,14 @@ if __name__ == '__main__':
     s_l2 = diffScore(l2, gene_list)
     s_l3 = diffScore(l3, gene_list)
     
+    s_d1 = diffScore(d1, gene_list)
+    s_d2 = diffScore(d2, gene_list)
+    s_d3 = diffScore(d3, gene_list)
+    
     ipscs = np.array([s_i1.score(), s_i2.score(),s_i3.score()])
     ps = np.array([s_p1.score(), s_p2.score(),s_p3.score()])
     ls = np.array([s_l1.score(), s_l2.score(),s_l3.score()])
+    ds = np.array([s_d1.score(), s_d2.score(),s_d3.score()])
     
     
     # Create a figure and axis
@@ -120,7 +131,8 @@ if __name__ == '__main__':
     # Plot the data points as dots
     ax.plot(np.ones_like(ls), ls, 'bo', label='Lung')
     ax.plot(2 * np.ones_like(ps), ps, 'go', label='Primary Cultured')
-    ax.plot(3 * np.ones_like(ipscs), ipscs, 'ro', label='iPSC-Derived')
+    ax.plot(3 * np.ones_like(ps), ds, 'co', label='Direct Conversion')
+    ax.plot(4 * np.ones_like(ipscs), ipscs, 'mo', label='iPSC-Derived')
     
      # Add labels and title
     ax.set_xlabel('Cell Type')
@@ -128,40 +140,40 @@ if __name__ == '__main__':
     ax.set_title('Differentiation Scores by Cell Type')
     
     # Set x-axis ticks
-    ax.set_xticks([1, 2, 3])
-    ax.set_xticklabels(['Lung', 'Primary Culture', 'iPSC-Derived'])
+    ax.set_xticks([1, 2, 3,4])
+    ax.set_xticklabels(['Lung', 'Primary Culture', 'Direct Conversion','iPSC-Derived'])
     ax.set_ylim(0,1)
     
     # Show the plot
     plt.show()
     
-   # plt.savefig('../Figures/score_comparisons.png')
+    plt.savefig('../Figures/score_comparisons.png')
     
     t_statistic, p1 = stats.ttest_ind(ls, ps)
     t_statistic, p2 = stats.ttest_ind(ls, ipscs)
     t_statistic, p3 = stats.ttest_ind(ps, ipscs)
-    print(p1, p2, p3)
+    t_statistic, p4 = stats.ttest_ind(ds, ps)
+    t_statistic, p5 = stats.ttest_ind(ds, ipscs)
+    
+    print(p1, p2, p3, p4,p5)
 
    
     
-
-
-
+'''
     
-    
-    
-    
-    ''' intial tests 
+    #intial tests 
     test_fib = pd.read_table('../data/log_output_fibroblast.tsv',sep='\t')
     test_cm = pd.read_table('../data/log_output_cm.tsv',sep='\t')
     test_lung = pd.read_table('../data/log_output_lung.tsv',sep='\t')
+    test_pri = pd.read_table('../data/comparison_output/primary2/primary2_log_output.tsv',sep='\t') 
     # needs to be the same format! 
-    test_fib.rename(columns={'Gene Name': 'Gene'}, inplace=True)
-    test_cm.rename(columns={'Gene Name': 'Gene'}, inplace=True)
-    test_lung.rename(columns={'Gene Name': 'Gene'}, inplace=True)
+    
+    
     
     gene_list = pd.read_table('../data/essential_CM.tsv',sep='\t')
     gene_list = gene_list.iloc[:,1:]
+    
+    gene_list.rename(columns={'Gene': 'Gene Name'}, inplace=True)
     
     
     s_fib = diffScore(test_fib,gene_list)
@@ -170,9 +182,11 @@ if __name__ == '__main__':
     score_cm = s_cm.score()
     s_lung = diffScore(test_lung,gene_list)
     score_lung = s_lung.score()
+    s_pri = diffScore(test_pri,gene_list)
+    score_pri = s_pri.score()
     
-    scores = [s_lung.score, s_fib.score, s_cm.score]
-    labs = ['Lung', 'Direct Conversion', 'iPSC Derived']
+    scores = [s_lung.score, s_pri.score, s_fib.score, s_cm.score]
+    labs = ['Lung', 'Primary Culture', 'Direct Conversion', 'iPSC Derived']
     
     # Plotting
     plt.bar(labs, scores)
@@ -189,8 +203,8 @@ if __name__ == '__main__':
     plt.savefig('../Figures/score_barGraph.png')
     
     plt.show()
-    ''' 
-
+    
+'''
     
 
     
